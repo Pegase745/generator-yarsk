@@ -2,6 +2,7 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
+var slugify = require("underscore.string/slugify");
 
 module.exports = yeoman.generators.Base.extend({
   initializing: function () {
@@ -17,33 +18,33 @@ module.exports = yeoman.generators.Base.extend({
     ));
 
     var prompts = [{
-      type: 'confirm',
-      name: 'someOption',
-      message: 'Would you like to enable this option?',
-      default: true
+      type: 'input',
+      name: 'appName',
+      default: this.appname,
+      message: 'What is your app\'s name ?',
+      validate: function(input) {
+        return !!input;
+      }
     }];
 
     this.prompt(prompts, function (props) {
       this.props = props;
-      // To access props later use this.props.someOption;
+      this.appName = slugify(this.props.appName);
 
       done();
     }.bind(this));
   },
 
   writing: {
-    app: function () {
+    configfiles: function () {
       this.fs.copy(
         this.templatePath('_package.json'),
         this.destinationPath('package.json')
       );
       this.fs.copy(
-        this.templatePath('_bower.json'),
-        this.destinationPath('bower.json')
+        this.templatePath('_gitignore'),
+        this.destinationPath('.gitignore')
       );
-    },
-
-    projectfiles: function () {
       this.fs.copy(
         this.templatePath('editorconfig'),
         this.destinationPath('.editorconfig')
@@ -52,10 +53,27 @@ module.exports = yeoman.generators.Base.extend({
         this.templatePath('jshintrc'),
         this.destinationPath('.jshintrc')
       );
+      this.fs.copy(
+        this.templatePath('eslintrc'),
+        this.destinationPath('.eslintrc')
+      );
+    },
+
+    scaffoldFolders: function(){
+      this.directory('app', 'app', this.context);
+      this.directory('conf', 'conf', this.context);
+    },
+
+    projectfiles: function () {
+      
     }
   },
 
   install: function () {
-    this.installDependencies();
+    this.installDependencies({
+      npm: true,
+      bower: false,
+      skipInstall: this.options['skip-install']
+    });
   }
 });

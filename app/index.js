@@ -2,7 +2,7 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
-var slugify = require("underscore.string/slugify");
+var slugify = require('underscore.string').slugify;
 
 module.exports = yeoman.generators.Base.extend({
   initializing: function () {
@@ -37,9 +37,10 @@ module.exports = yeoman.generators.Base.extend({
 
   writing: {
     configfiles: function () {
-      this.fs.copy(
+      this.fs.copyTpl(
         this.templatePath('_package.json'),
-        this.destinationPath('package.json')
+        this.destinationPath('package.json'),
+        { appName: this.appName }
       );
       this.fs.copy(
         this.templatePath('_gitignore'),
@@ -65,7 +66,7 @@ module.exports = yeoman.generators.Base.extend({
     },
 
     projectfiles: function () {
-      
+
     }
   },
 
